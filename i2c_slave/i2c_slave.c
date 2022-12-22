@@ -84,6 +84,9 @@ void i2c_slave_init(i2c_inst_t *i2c, uint8_t address, i2c_slave_handler_t handle
     // unmask necessary interrupts
     hw->intr_mask = I2C_IC_INTR_MASK_M_RX_FULL_BITS | I2C_IC_INTR_MASK_M_RD_REQ_BITS | I2C_IC_RAW_INTR_STAT_TX_ABRT_BITS | I2C_IC_INTR_MASK_M_STOP_DET_BITS | I2C_IC_INTR_MASK_M_START_DET_BITS;
 
+    // enable clock stretching for when RX FIFI is full -> give more time to ISR
+    hw->con = hw->con | I2C_IC_CON_RX_FIFO_FULL_HLD_CTRL_VALUE_ENABLED;
+
     // enable interrupt for current core
     uint num = I2C0_IRQ + i2c_index;
     irq_set_exclusive_handler(num, i2c_index == 0 ? i2c0_slave_irq_handler : i2c1_slave_irq_handler);
